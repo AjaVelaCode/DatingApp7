@@ -71,11 +71,11 @@ export class MembersService {
 
     if (member) return of(member);
 
-    return this.httpClient.get<Member>(`${this.baseUrl}users/${username}` );
+    return this.httpClient.get<Member>(this.baseUrl + 'users/' + username);
   }
 
   updateMember(member: Member){
-    return this.httpClient.put(`${this.baseUrl}users`, member).pipe(
+    return this.httpClient.put(this.baseUrl + 'users', member).pipe(
       map(()=>{
         const index = this.members.indexOf(member);
         this.members[index] = {...this.members[index], ...member}
@@ -84,11 +84,23 @@ export class MembersService {
   }
 
   setMainPhoto(photoId: number){
-    return this.httpClient.put(`${this.baseUrl}users/set-main-photo/${photoId}`, {});
+    return this.httpClient.put(this.baseUrl + 'users/set-main-photo/' + photoId, {});
   }
 
   deletePhoto(photoId: number){
-    return this.httpClient.delete(`${this.baseUrl}users/delete-photo/${photoId}`);
+    return this.httpClient.delete(this.baseUrl + 'users/delete-photo/' + photoId );
+  }
+
+  addLike(username: string){
+    return this.httpClient.post(this.baseUrl + 'likes/' + username,{});
+  }
+
+  getLikes(predicate: string, pageNumber: number, pageSize: number){
+    let params = this.getPaginationHeaders(pageNumber, pageSize);
+
+    params = params.append('predicate', predicate);
+
+    return this.getPaginatedResult<Member[]>(this.baseUrl + 'likes', params);
   }
 
   private getPaginatedResult<T>(url: string, params: HttpParams) {
